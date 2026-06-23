@@ -5,3 +5,4 @@ torchvision>=0.15
 timm>=0.9
 Pillow>=10.0
 requests
+numpy
