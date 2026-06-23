@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: mosquitoscope
+    runtime: docker
+    dockerfilePath: ./webapp/Dockerfile
+    dockerContext: ./webapp
+    healthCheckPath: /health
+    envVars:
+      - key: FORCE_CPU
+        value: "1"
+      - key: TORCH_NUM_THREADS
+        value: "2"
+      - key: HF_MODEL_REPO
+        value: Sahil35077/mosquitoscope-convnextv2-tiny
+    buildFilter:
+      paths:
+        - webapp/**

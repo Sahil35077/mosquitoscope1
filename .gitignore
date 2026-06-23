@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.ipynb_checkpoints/
+
+# Environments
+.env
+.venv/
+venv/
+env/
+
+# Data & large artifacts (download separately)
+Data/
+*.zip
+
+# Model checkpoints & training outputs (large)
+results/
+results_class_weight/final/*.pth
+results_without_class_weight/final/*.pth
+*.pth
+*.pt
+*.ckpt
+
+# Logs
+logs/
+*.log
+mos_run.log
+
+# OS / editor
+.DS_Store
+__MACOSX/
+.idea/
+.vscode/
+*.swp
+
+# Jupyter executed copies (optional — keep Mos.ipynb, ignore executed)
+# Mos_executed.ipynb

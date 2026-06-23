@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MosquitoScope · AI Species Classifier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=7" />
+</head>
+<body>
+  <div class="ambient">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <header class="header">
+    <div class="header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">🦟</span>
+        <div>
+          <strong>MosquitoScope</strong>
+          <span>AI-powered entomology</span>
+        </div>
+      </a>
+      <nav class="header-stats">
+        <div class="stat-pill">
+          <span class="stat-val">{{ classes|length }}</span>
+          <span class="stat-lbl">Species</span>
+        </div>
+        <div class="stat-pill accent">
+          <span class="stat-val">{{ '%.0f'|format((model_metrics.test_accuracy or 0) * 100) }}%</span>
+          <span class="stat-lbl">Accuracy</span>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">ConvNeXt V2 Tiny · Hybrid class-weighted · 288px · 74% test accuracy</p>
+      <h1>Identify mosquito species <em>in seconds</em></h1>
+      <p class="hero-lead">Upload a macro photograph and our trained neural network predicts the species with confidence scores, ecological facts, and optional ground-truth validation.</p>
+      <div class="hero-chips">
+        <span class="chip">🌡️ Disease vectors</span>
+        <span class="chip">🔬 {{ classes|length }} trained classes</span>
+        <span class="chip">📊 Per-class metrics</span>
+        <span class="chip">🌍 Global species</span>
+      </div>
+    </div>
+  </section>
+
+  <main class="page">
+    <aside class="sidebar">
+      <section class="panel panel-edu">
+        <h3 class="panel-title"><span class="panel-icon">📚</span> Mosquito basics</h3>
+        <p class="panel-text">Mosquitoes (family <strong>Culicidae</strong>) are flies with ~3,500 species worldwide. Only females of most species bite — they need blood proteins to develop eggs.</p>
+        <ul class="fact-list">
+          <li><span class="dot dot-mint"></span> Lifespan: 2 weeks – 6 months</li>
+          <li><span class="dot dot-coral"></span> Wings beat ~500×/second</li>
+          <li><span class="dot dot-gold"></span> Detect CO₂ from 50+ meters</li>
+          <li><span class="dot dot-lavender"></span> Breed in still freshwater</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h3 class="panel-title"><span class="panel-icon">🧬</span> Major genera</h3>
+        <div class="genus-cards">
+          <div class="genus-card genus-aedes">
+            <strong>Aedes</strong>
+            <span>Day biters · dengue, Zika, yellow fever</span>
+          </div>
+          <div class="genus-card genus-anopheles">
+            <strong>Anopheles</strong>
+            <span>Night biters · malaria vectors</span>
+          </div>
+          <div class="genus-card genus-culex">
+            <strong>Culex</strong>
+            <span>Urban pests · West Nile virus</span>
+          </div>
+          <div class="genus-card genus-psorophora">
+            <strong>Psorophora</strong>
+            <span>Large floodwater species</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel panel-diseases">
+        <h3 class="panel-title"><span class="panel-icon">⚕️</span> Diseases transmitted</h3>
+        <div class="disease-tags">
+          <button type="button" class="disease-tag" data-disease="malaria">Malaria</button>
+          <button type="button" class="disease-tag" data-disease="dengue">Dengue</button>
+          <button type="button" class="disease-tag" data-disease="zika">Zika</button>
+          <button type="button" class="disease-tag" data-disease="west_nile">West Nile</button>
+          <button type="button" class="disease-tag" data-disease="chikungunya">Chikungunya</button>
+          <button type="button" class="disease-tag" data-disease="yellow_fever">Yellow fever</button>
+          <button type="button" class="disease-tag" data-disease="eee">EEE</button>
+          <button type="button" class="disease-tag" data-disease="heartworm">Heartworm</button>
+        </div>
+        <p class="panel-note">Click a disease to learn more. Accurate species ID supports surveillance and public-health response.</p>
+      </section>
+
+      <section class="panel panel-steps">
+        <h3 class="panel-title"><span class="panel-icon">⚡</span> How it works</h3>
+        <ol class="steps">
+          <li><span>1</span> Upload a clear dorsal or lateral mosquito image</li>
+          <li><span>2</span> Optionally select known species for comparison</li>
+          <li><span>3</span> Click <strong>Predict</strong> — model runs on GPU/CPU</li>
+          <li><span>4</span> Review top-5 predictions, facts &amp; metrics</li>
+        </ol>
+      </section>
+    </aside>
+
+    <div class="main-col">
+      <section class="card upload-card glass">
+        <div class="card-head">
+          <div>
+            <h2>Upload &amp; classify</h2>
+            <p class="subtitle">JPEG · PNG · WebP · BMP · GIF · TIFF — up to 16 MB</p>
+          </div>
+          <div class="format-badges">
+            <span>JPG</span><span>PNG</span><span>WEBP</span>
+          </div>
+        </div>
+
+        <form id="predict-form" enctype="multipart/form-data">
+          <input type="file" id="image-input" name="image" class="file-input" accept=".jpg,.jpeg,.png,.webp,.bmp,.gif,.tif,.tiff,image/*" />
+          <div class="dropzone" id="dropzone">
+            <label class="dropzone-inner" id="dropzone-content" for="image-input">
+              <div class="drop-ring">
+                <span class="drop-emoji">📷</span>
+              </div>
+              <p class="drop-title">Drop your mosquito image here</p>
+              <p class="drop-hint">or <span class="link-btn">browse from device</span></p>
+              <p class="drop-tip">💡 Best results: sharp focus, good lighting, visible wing &amp; body markings</p>
+            </label>
+            <div class="preview-wrap hidden" id="preview-wrap">
+              <div class="preview-frame">
+                <img id="preview-img" class="preview-img" alt="Preview" />
+                <button type="button" class="change-btn" id="change-btn" title="Change image">↻ Change</button>
+                <button type="button" class="clear-btn" id="clear-btn" title="Remove image">✕</button>
+              </div>
+              <p class="preview-name" id="preview-name"></p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-row">
+              <label for="ground-truth">
+                <span class="label-icon">🏷️</span>
+                Ground truth <span class="optional">optional</span>
+              </label>
+              <select id="ground-truth" name="ground_truth">
+                <option value="">— Skip comparison —</option>
+                {% for c in classes %}
+                <option value="{{ c }}">{{ c.replace('_', ' ') }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-predict" id="predict-btn" disabled>
+            <span class="btn-glow"></span>
+            <span class="btn-icon">🔍</span>
+            <span class="btn-text">Predict species</span>
+            <span class="spinner hidden" id="spinner"></span>
+          </button>
+        </form>
+      </section>
+
+      <div id="error-box" class="error-box hidden"></div>
+
+      <div id="results" class="results hidden">
+        <div class="results-header">
+          <h2>Classification results</h2>
+          <p id="result-timestamp"></p>
+        </div>
+
+        <div class="results-hero">
+          <section class="card result-image-card glass">
+            <div class="card-label">Your upload</div>
+            <div class="image-frame">
+              <img id="result-image" class="result-image" alt="Uploaded mosquito" />
+            </div>
+            <p class="filename" id="result-filename"></p>
+          </section>
+
+          <section class="card result-pred-card glass" id="pred-card">
+            <div class="card-label">Top prediction</div>
+            <div class="confidence-ring-wrap">
+              <svg class="confidence-ring" viewBox="0 0 120 120" id="confidence-ring">
+                <circle class="ring-bg" cx="60" cy="60" r="52" />
+                <circle class="ring-fill" cx="60" cy="60" r="52" id="ring-fill" />
+              </svg>
+              <div class="ring-center" id="ring-center">—</div>
+            </div>
+            <div id="top-prediction"></div>
+            <div class="pred-list" id="pred-list"></div>
+          </section>
+        </div>
+
+        <section class="card fact-card glass wide" id="fact-card">
+          <div class="card-head">
+            <h2><span class="panel-icon">🌿</span> Species profile</h2>
+            <span class="genus-badge hidden" id="genus-badge"></span>
+          </div>
+          <div id="fact-content" class="fact-grid"></div>
+        </section>
+
+        <section class="card hidden glass wide" id="gt-card">
+          <h2><span class="panel-icon">✅</span> Ground truth comparison</h2>
+          <div id="gt-content"></div>
+        </section>
+
+        <section class="card metrics-card glass wide">
+          <h2><span class="panel-icon">📈</span> Model performance</h2>
+          <p class="subtitle">Reference metrics from held-out test set &amp; cross-validation</p>
+          <div class="metrics-grid" id="model-metrics-ref"></div>
+        </section>
+
+        <section class="card glass wide info-banner">
+          <div class="banner-grid">
+            <div class="banner-item">
+              <span class="banner-icon">🦟</span>
+              <div>
+                <strong>3,500+</strong>
+                <span>mosquito species exist globally; our model recognizes {{ classes|length }} from your training dataset.</span>
+              </div>
+            </div>
+            <div class="banner-item">
+              <span class="banner-icon">🧠</span>
+              <div>
+                <strong>ConvNeXt V2</strong>
+                <span>modern vision transformer architecture fine-tuned on macro mosquito imagery.</span>
+              </div>
+            </div>
+            <div class="banner-item">
+              <span class="banner-icon">🛡️</span>
+              <div>
+                <strong>Public health</strong>
+                <span>species-level ID helps target larvicide, trap placement, and disease surveillance.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>MosquitoScope · University of North Texas research project</p>
+      <p class="footer-sub">Built with PyTorch, timm &amp; Flask · For research &amp; education</p>
+    </div>
+  </footer>
+
+  <div class="disease-modal hidden" id="disease-modal" role="dialog" aria-modal="true" aria-labelledby="disease-modal-title">
+    <div class="disease-modal-backdrop" id="disease-modal-backdrop"></div>
+    <div class="disease-modal-panel">
+      <button type="button" class="disease-modal-close" id="disease-modal-close" aria-label="Close">✕</button>
+      <h2 id="disease-modal-title"></h2>
+      <div id="disease-modal-body" class="disease-modal-body"></div>
+      <a id="disease-modal-link" class="disease-modal-link" href="#" target="_blank" rel="noopener noreferrer">Learn more from authoritative source →</a>
+    </div>
+  </div>
+
+  <script type="application/json" id="disease-data">{{ diseases | tojson }}</script>
+  <script src="{{ url_for('static', filename='js/main.js') }}?v=7"></script>
+</body>
+</html>
