@@ -1,4 +1,5 @@
 flask>=3.0
+gunicorn
 torch>=2.0
 torchvision>=0.15
 timm>=0.9
