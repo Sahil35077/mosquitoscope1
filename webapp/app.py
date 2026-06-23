@@ -3,10 +3,10 @@ from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
 
-from config import ALLOWED_EXTENSIONS, MAX_UPLOAD_MB, MODEL_PATH, PORT
-from disease_info import DISEASES, get_disease, list_diseases
-from model_service import get_classifier
-from mosquito_facts import get_fact
+from webapp.config import ALLOWED_EXTENSIONS, MAX_UPLOAD_MB, MODEL_PATH, PORT
+from webapp.disease_info import DISEASES, get_disease, list_diseases
+from webapp.model_service import get_classifier
+from webapp.mosquito_facts import get_fact
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_MB * 1024 * 1024
