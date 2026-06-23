@@ -15,7 +15,7 @@ from webapp.config import (
     TEST_METRICS_PATH,
     TOP_K,
 )
-from download_assets import ensure_model
+from webapp.download_assets import ensure_model
 
 
 class MosquitoClassifier:
