@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from PIL import Image
 from torchvision import transforms
 
-from config import (
+from webapp.config import (
     IMAGENET_MEAN,
     IMAGENET_STD,
     MODEL_PATH,
